@@ -25,13 +25,18 @@ data = yf.download(ticker, start_date, end_date, progress=False) # data is a pan
 # i think python evaluates and shows the value of expressions like racket,
 # however, to see those values in output, you have to print them
 
-# plot adjusted close price data using matplotlib
-# data['Adj Close'].plot(figsize=(10,7))
-# plt.title("adjusted clsoe price of %s" % ticker, fontsize=16)
-# plt.ylabel('price', fontsize=14)
-# plt.xlabel('year', fontsize=14)
-# plt.grid(which='major', color='k', linestyle='-.', linewidth=0.5)
-# plt.show()
+def plotStockData (data):
+    plt.clf()
+    data['Close'].plot(figsize=(10,7))
+    plt.title("close price of %s" % ticker, fontsize=16)
+    plt.ylabel('price', fontsize=14)
+    plt.xlabel('year', fontsize=14)
+    plt.grid(which='major', color='k', linestyle='-.', linewidth=0.5)
+    plt.ion()
+    plt.show()
+
+# plot close price data using matplotlib
+plotStockData(data)
 
 # i originally planned to interpolate the data to a function
 #  then take the derivative and find extrema and use the extrema
@@ -139,12 +144,13 @@ decreasingIntervals = np.delete(decreasingIntervals, 0, axis=1).squeeze()
 avgIncreasingInterval = np.average(increasingIntervals)
 avgDecreasingInterval = np.average(decreasingIntervals)
 
-# print(avgIncreasingInterval)
-# print(avgDecreasingInterval)
+print("\nThe average increasing interval for the stock is", avgIncreasingInterval, "days")
+print("\nThe average decreasing interval for the stock is", avgDecreasingInterval, "days\n")
 
 def evalStock(date):
     startDate = datetime.strptime(date, '%Y-%m-%d') - timedelta(days=30)
     data = yf.download(ticker, startDate.strftime('%Y-%m-%d'), date, progress=False)
+    plotStockData(data)
     data = data.filter(['Close'])
     data = data.to_numpy().squeeze()
 
@@ -172,4 +178,10 @@ def evalStock(date):
         else:
             return("don't buy")
 
-print(evalStock(input("enter the date of the stock price you want to evaluate, e.x. 2021-08-01: ")))
+while(True):
+    userInput = input("enter a date to evaluate the stock price on that date or enter 'quit' to quit, e.x. 2021-08-01: ")
+    if userInput == 'quit':
+        print("thanks for using trading bot")
+        break
+    else:
+        print(evalStock(userInput))
